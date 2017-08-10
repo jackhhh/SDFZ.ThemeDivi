@@ -8918,3 +8918,31 @@ function et_divi_filter_et_core_is_builder_used_on_current_request( $is_builder_
 }
 add_filter( 'et_core_is_builder_used_on_current_request', 'et_divi_filter_et_core_is_builder_used_on_current_request' );
 endif;
+
+//自定义登录页面背景
+function custom_login_head(){
+$str=file_get_contents('https://cn.bing.com/HPImageArchive.aspx?idx=0&n=1');
+if(preg_match("/<url>(.+?)<\/url>/ies",$str,$matches)){
+$imgurl='https://cn.bing.com'.$matches[1];
+    echo'<style type="text/css">body{background: url('.$imgurl.');background-attachment:fixed;width:100%;height:100%;background-image:url('.$imgurl.');background-attachment:fixed;-moz-background-size: 100% 100%;-o-background-size: 100% 100%;-webkit-background-size: 100% 100%;background-size: 100% 100%;-moz-border-image: url('.$imgurl.') 0;background-attachment:fixed;background-repeat:no-repeat\9;background-image:none\9;}h1 a { background-image:url('.get_bloginfo('url').'/favicon.ico)!important;width:32px;height:32px;-webkit-border-radius:50px;-moz-border-radius:50px;border-radius:50px;}#loginform {background-color:rgba(251,251,251,0.3)!important;}.login label,a{color:#000!important;}</style>';
+}}
+add_action('login_head', 'custom_login_head');
+add_filter('login_headerurl', create_function(false,"return get_bloginfo('url');"));
+add_filter('login_headertitle', create_function(false,"return get_bloginfo('name');"));
+
+//自定义登录页面的LOGO图片
+function my_custom_login_logo() {
+    echo '<style type="text/css">
+        h1 a { background-image:url('.get_bloginfo('template_directory').'/images/logo_login.png) !important; }
+    </style>';
+}
+add_action('login_head', 'my_custom_login_logo');
+
+/* 替换图片链接为 https */
+function my_content_manipulator($content){
+    if( is_ssl() ){
+        $content = str_replace('http://www.lovefz.net/wp-content/uploads', 'https://www.lovefz.net/wp-content/uploads', $content);
+    }
+    return $content;
+}
+add_filter('the_content', 'my_content_manipulator');

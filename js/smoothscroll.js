@@ -1,9 +1,11 @@
-// SmoothScroll for websites v1.2.1
-// Licensed under the terms of the MIT license.
-
-// People involved
-//  - Balazs Galambosi (maintainer)
-//  - Michael Herf     (Pulse Algorithm)
+/*!
+* SmoothScroll for websites v1.2.1
+* Licensed under the terms of the MIT license.
+*
+* People involved
+* - Balazs Galambosi (maintainer)
+* - Michael Herf     (Pulse Algorithm)
+*/
 
 (function(){
 
@@ -531,5 +533,18 @@ if (wheelEvent && isChrome) {
 	addEvent("mousedown", mousedown);
 	addEvent("load", init);
 }
+
+/***********************************************
+ * Interface for Divi Visual Builder
+ ***********************************************/
+window.ET_SmoothScroll = {
+    toggleKeydown: function(enable) {
+        if (enable) {
+            addEvent("keydown", keydown);
+        } else {
+            removeEvent("keydown", keydown);
+        }
+    },
+};
 
 })();

@@ -26,6 +26,10 @@ $shortname 	= esc_html( $shortname );
 $pages_ids 	= array_map( 'intval', $pages_ids );
 $cats_ids 	= array_map( 'intval', $cats_ids );
 
+// Remove option-based filter output on theme options loading
+remove_filter( 'et_load_unminified_scripts', 'et_divi_load_unminified_scripts' );
+remove_filter( 'et_load_unminified_styles', 'et_divi_load_unminified_styles' );
+
 $options = array (
 
 	array( "name" => "wrap-general",
@@ -109,14 +113,6 @@ $options = array (
 				   	'et_save_values' => true,
 			),
 
-			array( "name" => esc_html__( "MailChimp API Key", $themename ),
-                   "id" => $shortname . "_mailchimp_api_key",
-                   "std" => "",
-                   "type" => "text",
-                   "validation_type" => "nohtml",
-				   "desc" => et_get_safe_localization( sprintf( __( 'Enter your MailChimp API key. You can create an api key <a target="_blank" href="%1$s">here</a>', $themename ), 'https://us3.admin.mailchimp.com/account/api/' ) ),
-			),
-
 			array(
 				"name"              => esc_html__( "Google API Key", $themename ),
 				"id"                => "et_google_api_settings_api_key",
@@ -129,23 +125,16 @@ $options = array (
 				"desc"              => et_get_safe_localization( sprintf( __( 'The Maps module uses the Google Maps API and requires a valid Google API Key to function. Before using the map module, please make sure you have added your API key here. Learn more about how to create your Google API Key <a target="_blank" href="%1$s">here</a>.', $themename ), 'http://www.elegantthemes.com/gallery/divi/documentation/map/' ) ),
 			),
 
-			array( "name" => esc_html__( "Aweber Authorization", $themename ),
-                   "type" => "callback_function",
-				   "desc" => esc_html__( 'Authorize your Aweber account here.', $themename ),
-				   "function_name" => 'et_aweber_authorization_option',
+			array(
+				"name"              => esc_html__( "Enqueue Google Maps Script", $themename ),
+				"id"                => "et_enqueue_google_maps_script",
+				"main_setting_name" => "et_google_api_settings",
+				"sub_setting_name"  => 'enqueue_google_maps_script',
+				'is_global'         => true,
+				"type"              => "checkbox",
+				"std"               => "on",
+				"desc"              => esc_html__( "Disable this option to remove the Google Maps API script from your Divi Builder Pages. This may improve compatibility with third party plugins that also enqueue this script. Please Note: Modules that rely on the Google Maps API in order to function properly, such as the Maps and Fullwidth Maps Modules, will still be available but will not function while this option is disabled (unless you manually add Google Maps API script).", $themename ),
 			),
-
-			array( "name" => esc_html__( "Regenerate MailChimp Lists", $themename ),
-                   "id" => $shortname . "_regenerate_mailchimp_lists",
-                   "type" => "checkbox",
-                   "std" => "false",
-                   "desc" => esc_html__( "By default, MailChimp lists are cached for one day. If you added new list, but it doesn't appear within the Email Optin module settings, activate this option. Don't forget to disable it once the list has been regenerated.",$themename ) ),
-
-			array( "name" =>esc_html__( "Regenerate Aweber Lists", $themename ),
-                   "id" => $shortname . "_regenerate_aweber_lists",
-                   "type" => "checkbox2",
-                   "std" => "false",
-                   "desc" =>esc_html__( "By default, Aweber lists are cached for one day. If you added new list, but it doesn't appear within the Email Optin module settings, activate this option. Don't forget to disable it once the list has been regenerated.", $themename ) ),
 
 			array( "name" =>esc_html__( "Show Facebook Icon", $themename ),
                    "id" => $shortname . "_show_facebook_icon",
@@ -287,6 +276,24 @@ $options = array (
 				   "type" => "checkbox2",
 				   "std" => "false",
 				   "desc" => esc_html__( "Disable translations if you don't want to display translated theme strings on your site.", $themename )
+			),
+
+			array( 'name'               => esc_html__( 'Minify And Combine Javascript Files', $themename ),
+				'id'                    => $shortname . '_minify_combine_scripts',
+				'type'                  => 'checkbox',
+				'std'                   => 'on',
+				'desc'                  => esc_html__( 'Use combined and minified javascript file to speed up your site\'s page load.', $themename ),
+				'hide_option'           => et_load_unminified_scripts(),
+				'hidden_option_message' => esc_html__( 'Divi uses uncombined and unminified javascript files because "SCRIPT_DEBUG" constant on wp-config.php has been set to "true". Other plugin can enforce Divi to use uncombined and unminified javascript files by filtering "et_load_unminified_scripts" filter as well.', $themename ),
+			),
+
+			array( 'name'               => esc_html__( 'Minify And Combine CSS Files', $themename ),
+				'id'                    => $shortname . '_minify_combine_styles',
+				'type'                  => 'checkbox',
+				'std'                   => 'on',
+				'desc'                  => esc_html__( 'Use combined and minified CSS file to speed up your site\'s page load.', $themename ),
+				'hide_option'           => et_load_unminified_styles(),
+				'hidden_option_message' => esc_html__( 'Divi uses uncombined and unminified CSS files because "SCRIPT_DEBUG" constant on wp-config.php has been set to "true". Other plugin can enforce Divi to use uncombined and unminified CSS files by filtering "et_load_unminified_styles" filter as well.', $themename ),
 			),
 
 			array( "name" => esc_html__( "Custom CSS", $themename ),
@@ -866,7 +873,7 @@ $options = array (
 				'std'               => '',
 				'type'              => 'password',
 				'validation_type'   => 'nohtml',
-				'desc'              => et_get_safe_localization( __( 'Before you can receive product updates, you must first authenticate your Elegant Themes subscription. To do this, you need to enter both your Elegant Themes Username and your Elegant Themes API Key. Your username is the same username you use when logging in to <a href="http://elegantthemes.com/" target="_blank">ElegantThemes.com</a>', $themename ) ),
+				'desc'              => et_get_safe_localization( __( '<em>Before you can receive product updates, you must first authenticate your Elegant Themes subscription. To do this, you need to enter both your Elegant Themes Username and your Elegant Themes API Key into the Updates Tab in your theme and plugin settings. To locate your API Key, <a href="https://www.elegantthemes.com/members-area/api/" target="_blank">log in</a> to your Elegant Themes account and navigate to the <strong>Account > API Key</strong> page. <a href="http://www.elegantthemes.com/gallery/divi/documentation/update/" target="_blank">Learn more here</a></em>. If you still get this message, please make sure that your Username and API Key have been entered correctly', $themename ) ),
 				'is_global'         => true,
 				'main_setting_name' => 'et_automatic_updates_options',
 				'sub_setting_name'  => 'username',
@@ -878,7 +885,7 @@ $options = array (
 				'std'             => '',
 				'type'            => 'password',
 				'validation_type' => 'nohtml',
-				'desc'            => et_get_safe_localization( __( 'Before you can receive product updates, you must first authenticate your Elegant Themes subscription. To do this, you need to enter both your Elegant Themes Username and your Elegant Themes API Key. To locate your API Key, <a href="https://www.elegantthemes.com/members-area/" target="_blank">log in</a> to your Elegant Themes account and navigate to the <strong>Account > API Key</strong> page.', $themename ) ),
+				'desc'            => et_get_safe_localization( __( '<em>Before you can receive product updates, you must first authenticate your Elegant Themes subscription. To do this, you need to enter both your Elegant Themes Username and your Elegant Themes API Key into the Updates Tab in your theme and plugin settings. To locate your API Key, <a href="https://www.elegantthemes.com/members-area/api/" target="_blank">log in</a> to your Elegant Themes account and navigate to the <strong>Account > API Key</strong> page. <a href="http://www.elegantthemes.com/gallery/divi/documentation/update/" target="_blank">Learn more here</a></em>. If you still get this message, please make sure that your Username and API Key have been entered correctly', $themename ) ),
 				'is_global'         => true,
 				'main_setting_name' => 'et_automatic_updates_options',
 				'sub_setting_name'  => 'api_key',
@@ -946,3 +953,7 @@ $options = array (
 //-------------------------------------------------------------------------------------//
 
 );
+
+// Re-add option-based filter output on theme options loading
+add_filter( 'et_load_unminified_scripts', 'et_divi_load_unminified_scripts' );
+add_filter( 'et_load_unminified_styles', 'et_divi_load_unminified_styles' );

@@ -35,10 +35,9 @@ if ( ! is_page_template( 'page-template-blank.php' ) ) : ?>
 					if ( false !== et_get_option( 'show_footer_social_icons', true ) ) {
 						get_template_part( 'includes/social_icons', 'footer' );
 					}
-				?>
 
-						<p id="footer-info">© 1905-<?php echo date("Y");?> <a href="https://www.lovefz.net">湖南师大附中·校友回访团</a> 版权所有. | <a href="http://www.jackh.cn" target="_blank">Jack.H</a> & P.God & <a href="https://ohhere.xyz" target="_blank">Graphite</a> Technical Support.</p>
-<p id="icp-info"><a href="http://www.miitbeian.gov.cn/" rel="external nofollow" target="_blank"><?php echo get_option( 'zh_cn_l10n_icp_num' );?></a></p>
+					echo et_get_footer_credits();
+				?>
 					</div>	<!-- .container -->
 				</div>
 			</footer> <!-- #main-footer -->
